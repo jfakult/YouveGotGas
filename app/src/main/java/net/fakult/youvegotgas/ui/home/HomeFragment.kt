@@ -1,3 +1,5 @@
+//AIzaSyCXJKSPAKpYppteR-jRoQ2eVsr4X4Bbb2E
+
 package net.fakult.youvegotgas.ui.home
 
 import android.app.Activity
@@ -13,7 +15,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
@@ -24,6 +28,7 @@ class HomeFragment : Fragment()
 {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var auth: FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
@@ -33,9 +38,10 @@ class HomeFragment : Fragment()
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        val tutorialComplete = activity?.getPreferences(Context.MODE_PRIVATE)?.getInt("tutorial_complete", 0)
+        val tutorialComplete =
+            activity?.getPreferences(Context.MODE_PRIVATE)?.getInt("tutorial_complete", 0)
 
-        if (tutorialComplete == 1)
+        if (tutorialComplete == 1 && false)
         {
             val textView: TextView = root.findViewById(R.id.text_home)
             homeViewModel.text.observe(this, Observer {
@@ -53,6 +59,10 @@ class HomeFragment : Fragment()
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build()
+
+            googleSignInClient = GoogleSignIn.getClient(context!!, gso)
+
+            signIn()
 
             /*
             auth.createUserWithEmailAndPassword("", "")
@@ -74,46 +84,57 @@ class HomeFragment : Fragment()
                 }
             */
 
+            activity?.getPreferences(Context.MODE_PRIVATE)?.edit()?.putInt("tutorial_complete", 1)?.apply()
+
         }
 
         return root
     }
 
-    private fun signIn() {
+    private fun signIn()
+    {
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, 1001)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
+    {
         super.onActivityResult(requestCode, resultCode, data)
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == 1001) {
+        if (requestCode == 1001)
+        {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            try {
+            try
+            {
                 // Google Sign In was successful, authenticate with Firebase
                 val account = task.getResult(ApiException::class.java)
                 firebaseAuthWithGoogle(account!!)
-            } catch (e: ApiException) {
+            } catch (e: ApiException)
+            {
                 // Google Sign In failed, update UI appropriately
-                Log.w("GSignin", "Google sign in failed", e)
+                Log.w("GSignin", "Google sign in failed" + e.message)
                 // ...
             }
         }
     }
 
-    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
+    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount)
+    {
         Log.d("firebaseGsignin", "firebaseAuthWithGoogle:" + acct.id!!)
 
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(activity as Activity) { task ->
-                if (task.isSuccessful) {
+                if (task.isSuccessful)
+                {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("GoogleAuth", "signInWithCredential:success")
                     val user = auth.currentUser
                     //updateUI(user)
-                } else {
+                }
+                else
+                {
                     // If sign in fails, display a message to the user.
                     Log.w("GoogleAuth", "signInWithCredential:failure", task.exception)
                     Toast.makeText(context, "Authentication Failed.", Toast.LENGTH_SHORT).show()
