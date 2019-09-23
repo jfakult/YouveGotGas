@@ -23,6 +23,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import net.fakult.youvegotgas.R
+import net.fakult.youvegotgas.UpdateOdometerScreen
 
 class HomeFragment : Fragment()
 {
@@ -32,6 +33,9 @@ class HomeFragment : Fragment()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
+        val i = Intent(context, UpdateOdometerScreen::class.java)
+        startActivity(i)
+
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
 

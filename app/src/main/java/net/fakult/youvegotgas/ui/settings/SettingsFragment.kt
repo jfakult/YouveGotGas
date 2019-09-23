@@ -16,9 +16,12 @@ import android.content.Intent
 import net.fakult.youvegotgas.MorningNotificationService
 import java.util.Calendar
 
+const val CODE_ENTER_HOME = 1
+const val CODE_ENTER_WORK = 2
+const val CODE_DWELL = 3
+
 class SettingsFragment : Fragment()
 {
-
     private lateinit var notificationsViewModel: SettingsViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
@@ -37,7 +40,7 @@ class SettingsFragment : Fragment()
 
         val intent = Intent(context, MorningNotificationService::class.java)
         val alarmManager = context?.getSystemService(ALARM_SERVICE) as? AlarmManager
-        val pendingIntent = PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getService(context, CODE_ENTER_HOME, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         // Issue with getservice above?
 
         val calendar = Calendar.getInstance()
