@@ -85,7 +85,6 @@ class HomeFragment : Fragment()
             */
 
             activity?.getPreferences(Context.MODE_PRIVATE)?.edit()?.putInt("tutorial_complete", 1)?.apply()
-
         }
 
         return root

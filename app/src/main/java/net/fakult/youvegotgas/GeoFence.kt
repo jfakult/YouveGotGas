@@ -9,6 +9,13 @@ import com.google.android.gms.location.GeofencingRequest
 
 class GeoFence
 {
+    val GEOFENCE_TYPE_HOME = 0
+    val GEOFENCE_TYPE_WORK = 1
+    val GEOFENCE_TYPE_MOTION_DETECTOR = 2
+    val GEOFENCE_TYPE_UNKNOWN = 99
+
+    val GEOFENCE_RADIUS : Double = 100.0
+
     fun getCurrentLocation() : Array<Double>
     {
         val latLng = doubleArrayOf(0.0, 0.0)
@@ -16,9 +23,9 @@ class GeoFence
         return latLng.toTypedArray()
     }
 
-    fun createGeofence(geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent, type: String, lat: Double, lng: Double)
+    fun createGeofence(geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent, type: Int, lat: Double, lng: Double)
     {
-        val geofence = buildGeofence(lat, lng, 100.0)
+        val geofence = buildGeofence(lat, lng, GEOFENCE_RADIUS, type)
 
         //Do something with firebase based on type
 
@@ -46,10 +53,12 @@ class GeoFence
         }
     }
 
-    private fun buildGeofence(latitude: Double, longitude: Double, radius: Double): Geofence
+    private fun buildGeofence(latitude: Double, longitude: Double, radius: Double, type: Int): Geofence
     {
+        val roundedLat = round_coordinate(latitude)
+        val roundedLng = round_coordinate(longitude)
         return Geofence.Builder()
-            .setRequestId("$latitude-$longitude")
+            .setRequestId("$type+$latitude+$longitude")
             .setCircularRegion(latitude, longitude, radius.toFloat())
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
@@ -62,5 +71,10 @@ class GeoFence
             .setInitialTrigger(0)
             .addGeofences(listOf(geofence))
             .build()
+    }
+
+    fun round_coordinate(coord : Double) : Double
+    {
+        return coord
     }
 }
