@@ -23,7 +23,6 @@ class GeofenceDashboardFragment : Fragment()
 {
     lateinit var geofencingClient: GeofencingClient
 
-    private lateinit var dashboardViewModel: GeofenceDashboardViewModel
     private lateinit var geofence_manager : GeoFence
 
     private val geofencePendingIntent: PendingIntent by lazy {
@@ -49,7 +48,7 @@ class GeofenceDashboardFragment : Fragment()
         val setHomeGeofenceButton : Button = root.findViewById(R.id.set_home_geofence_button)
         setHomeGeofenceButton.setOnClickListener {
             val latLng : Array<Double> = geofence_manager.getCurrentLocation()
-            geofence_manager.createGeofence(geofencingClient, geofencePendingIntent, "home", latLng[0], latLng[1])
+            geofence_manager.createGeofence(geofencingClient, geofencePendingIntent, GeoFence().GEOFENCE_TYPE_HOME, latLng[0], latLng[1])
         }
 
         return root

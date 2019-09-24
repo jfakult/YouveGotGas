@@ -37,7 +37,6 @@ class SettingsFragment : Fragment()
         This is temporary, just for testing for now. To be implemented by buttons on this page later
          */
 
-
         val intent = Intent(context, MorningNotificationService::class.java)
         val alarmManager = context?.getSystemService(ALARM_SERVICE) as? AlarmManager
         val pendingIntent = PendingIntent.getService(context, CODE_ENTER_HOME, intent, PendingIntent.FLAG_UPDATE_CURRENT)

@@ -66,9 +66,9 @@
         android:background="@drawable/circle_shape"
         app:layout_constraintStart_toStartOf="@+id/submitButtonPlaceholder"
         app:layout_constraintEnd_toEndOf="@+id/submitButtonPlaceholder"
+        app:layout_constraintTop_toTopOf="@+id/submitButtonPlaceholder"
         app:layout_constraintBottom_toBottomOf="@+id/submitButtonPlaceholder"
         android:backgroundTint="#cc8888"
         />
-    <!-- app:layout_constraintTop_toTopOf="@+id/submitButtonPlaceholder" -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
