@@ -1,7 +1,6 @@
 package net.fakult.youvegotgas
 
 import android.app.PendingIntent
-import android.content.Intent
 import android.widget.Toast
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient

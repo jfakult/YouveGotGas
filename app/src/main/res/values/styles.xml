@@ -8,4 +8,21 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="MeterNumberPickerStyle">
+        <item name="mnp_min">0</item>
+        <item name="mnp_max">9</item>
+        <item name="mnp_textColor">#fff</item>
+        <item name="mnp_textSize">40sp</item>
+        <item name="mnp_paddingHorizontal">8dp</item>
+        <item name="mnp_paddingVertical">24dp</item>
+    </style>
+
+    <style name="MeterViewStyle">
+        <item name="mv_firstColor">#000</item>
+        <item name="mv_numberOfFirst">6</item>
+        <item name="mv_numberOfSecond">1</item>
+        <item name="mv_pickerStyle">@style/MeterNumberPickerStyle</item>
+        <item name="mv_secondColor">#a88</item>
+    </style>
+
 </resources>

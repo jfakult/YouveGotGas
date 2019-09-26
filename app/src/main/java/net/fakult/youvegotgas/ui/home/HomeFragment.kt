@@ -23,7 +23,6 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import net.fakult.youvegotgas.R
-import net.fakult.youvegotgas.UpdateOdometerScreen
 
 class HomeFragment : Fragment()
 {
@@ -33,8 +32,8 @@ class HomeFragment : Fragment()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-        val i = Intent(context, UpdateOdometerScreen::class.java)
-        startActivity(i)
+        //val i = Intent(context, UpdateOdometerScreen::class.java)
+        //startActivity(i)
 
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
@@ -42,10 +41,11 @@ class HomeFragment : Fragment()
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        val tutorialComplete =
-            activity?.getPreferences(Context.MODE_PRIVATE)?.getInt("tutorial_complete", 0)
+        Log.d("Currentuser", currentUser?.email!!)
 
-        if (tutorialComplete == 1 && false)
+        val tutorialComplete = activity?.getPreferences(Context.MODE_PRIVATE)?.getInt("tutorial_complete", 0)
+
+        if (tutorialComplete == 1 && currentUser != null)
         {
             val textView: TextView = root.findViewById(R.id.text_home)
             homeViewModel.text.observe(this, Observer {

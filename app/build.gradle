@@ -54,4 +54,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore:21.1.1'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
     implementation 'com.android.support:multidex:1.0.3'
+
+    implementation 'com.alex-zaitsev:meternumberpicker:1.0.3'
+
+    implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
+
+    // Required only if Facebook login support is required
+    // Find the latest Facebook SDK releases here: https://goo.gl/Ce5L94
+    //implementation 'com.facebook.android:facebook-android-sdk:4.x'
 }
