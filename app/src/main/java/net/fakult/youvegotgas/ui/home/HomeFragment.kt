@@ -35,13 +35,16 @@ class HomeFragment : Fragment()
         //val i = Intent(context, UpdateOdometerScreen::class.java)
         //startActivity(i)
 
+        val permissions = arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.INTERNET, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        this.requestPermissions(permissions,0)
+
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
 
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        Log.d("Currentuser", currentUser?.email!!)
+        Log.d("Currentuser", auth.toString())
 
         val tutorialComplete = activity?.getPreferences(Context.MODE_PRIVATE)?.getInt("tutorial_complete", 0)
 

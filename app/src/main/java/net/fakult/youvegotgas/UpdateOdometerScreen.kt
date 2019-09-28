@@ -1,18 +1,15 @@
 package net.fakult.youvegotgas
 
-import android.app.ActionBar
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.ScaleAnimation
 import android.widget.Button
-import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity

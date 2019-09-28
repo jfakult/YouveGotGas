@@ -12,6 +12,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
 {
     override fun onReceive(context: Context?, intent: Intent?)
     {
+        Log.d("Recieving", "!!!")
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
         if (geofencingEvent.hasError())
         {
@@ -47,7 +48,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
 
             Toast.makeText(context, "Received a $type geofence transition!!", Toast.LENGTH_LONG)
                 .show()
-            Log.e("Geofence trigger", "$geofenceId $geofenceLat $geofenceLng")
+            Log.e("Geofence trigger", "$geofenceId $geofenceLat $geofenceLng $type")
 
             //}
             // Delete any duplicate geofences
@@ -55,6 +56,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
             // Dont forget to add the implementation for morning notifications! ("Does this look right")p
             // Launch a notification based on the information received
             // Make sure to track "last geofence ID". HOME-HOME trips should be ignored
+            Log.d("Geofnce", "Going in")
+
             if (geofenceId == GeoFence().GEOFENCE_TYPE_HOME)
             {
                 if (type == "ENTER")
@@ -71,6 +74,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
                 }
                 else if (type == "DWELL")
                 {
+                    Toast.makeText(context, "Triggered dwell!", Toast.LENGTH_LONG).show()
                     // No action?
                 }
             }

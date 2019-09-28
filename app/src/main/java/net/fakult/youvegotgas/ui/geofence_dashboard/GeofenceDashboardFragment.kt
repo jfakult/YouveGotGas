@@ -18,19 +18,22 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.android.synthetic.main.fragment_dashboard.*
 import net.fakult.youvegotgas.GeoFence
 import net.fakult.youvegotgas.GeofenceBroadcastReceiver
 import net.fakult.youvegotgas.R
+import android.media.ToneGenerator
+import android.media.AudioManager
 
-const val TAG : String = "GeoDash"
+
+
+const val TAG: String = "GeoDash"
 
 class GeofenceDashboardFragment : Fragment()
 {
     private lateinit var geofencingClient: GeofencingClient
-    private lateinit var geofenceManager : GeoFence
+    private lateinit var geofenceManager: GeoFence
     private lateinit var databaseReference: DatabaseReference
-    private lateinit var activity : Activity
+    private lateinit var activity: Activity
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this.context, GeofenceBroadcastReceiver::class.java)
@@ -42,6 +45,9 @@ class GeofenceDashboardFragment : Fragment()
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         activity = context as Activity
+
+        val toneGen1 = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+        toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150)
 
         geofencingClient = LocationServices.getGeofencingClient(this.activity as Activity)
         geofenceManager = GeoFence()
@@ -55,42 +61,46 @@ class GeofenceDashboardFragment : Fragment()
             textView.text = it
         })*/
 
-        val setHomeGeofenceButton : Button = root.findViewById(R.id.set_home_geofence_button)
+        val setHomeGeofenceButton: Button = root.findViewById(R.id.set_home_geofence_button)
         setHomeGeofenceButton.setOnClickListener {
-            val latLng : Array<Double> = geofenceManager.getCurrentLocation()
-            geofenceManager.createGeofence(geofencingClient, geofencePendingIntent, GeoFence().GEOFENCE_TYPE_HOME, latLng[0], latLng[1])
+            val latLng: Array<Double> = geofenceManager.getCurrentLocation(this.context!!)
+            Log.d("going in", latLng[0].toString())
+            //geofenceManager.createGeofence(geofencingClient, geofencePendingIntent, GeoFence().GEOFENCE_TYPE_HOME, latLng[0], latLng[1])
+            geofenceManager.createGeofence(activity, geofencingClient, geofencePendingIntent, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
         }
 
         databaseReference = FirebaseDatabase.getInstance()
             .reference
 
-        odometerInput.setText(loadOdometer(activity as Activity).toString())
-        odometerInput.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?)
-            {
-                // Do nothing
-            }
+        odometerInput.setText(loadOdometer(activity).toString())
+        odometerInput.addTextChangedListener(object : TextWatcher
+                                             {
+                                                 override fun afterTextChanged(s: Editable?)
+                                                 {
+                                                     // Do nothing
+                                                 }
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int)
-            {
-                // Do nothing
-            }
+                                                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int)
+                                                 {
+                                                     // Do nothing
+                                                 }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int)
-            {
-                updateOdometer(activity, s.toString().toInt())
-            }
+                                                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int)
+                                                 {
+                                                     updateOdometer(activity, s.toString().toInt())
+                                                 }
 
-        })
+                                             })
 
         return root
     }
 
-    private fun loadOdometer(activity : Activity) : Int
+    private fun loadOdometer(activity: Activity): Int
     {
-        val odo = activity.getPreferences(Context.MODE_PRIVATE).getInt("odometer", -1)
+        val odo = activity.getPreferences(Context.MODE_PRIVATE)
+            .getInt("odometer", -1)
 
-        if ( odo >= 0 )
+        if (odo >= 0)
         {
             return odo
         }
@@ -113,7 +123,7 @@ class GeofenceDashboardFragment : Fragment()
         return 10000
     }
 
-    fun updateOdometer(activity: Activity, updatedOdometer : Int)
+    fun updateOdometer(activity: Activity, updatedOdometer: Int)
     {
         activity.getPreferences(Context.MODE_PRIVATE)
             .edit()
@@ -121,6 +131,8 @@ class GeofenceDashboardFragment : Fragment()
             .apply()
 
         //Upload result to firebase asynchronously as well
-        databaseReference.setValue("odometer", updatedOdometer)
+        databaseReference.child("Users")
+            .child("test")
+            .setValue("odometer", updatedOdometer)
     }
 }
