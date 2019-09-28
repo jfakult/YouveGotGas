@@ -1,8 +1,11 @@
 package net.fakult.youvegotgas
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.location.Geofence
@@ -12,7 +15,11 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
 {
     override fun onReceive(context: Context?, intent: Intent?)
     {
-        Log.d("Recieving", "!!!")
+        Log.d("Receiving", "!!!")
+
+        val toneGen1 = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+        toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 600)
+
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
         if (geofencingEvent.hasError())
         {
@@ -20,6 +27,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
             Log.e("Geofence-broad", "Error")
             return
         }
+
+        val noteMan = NotificationManager(context!!)
 
         // Get the transition type.
         val geofenceTransition = geofencingEvent.geofenceTransition
@@ -30,7 +39,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
             // multiple geofences.
             val triggeringGeofences = geofencingEvent.triggeringGeofences
 
-            var type: String = "---"
+            var type = "---"
             if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER)
                 type = "ENTER"
             else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT)
@@ -56,17 +65,20 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
             // Dont forget to add the implementation for morning notifications! ("Does this look right")p
             // Launch a notification based on the information received
             // Make sure to track "last geofence ID". HOME-HOME trips should be ignored
-            Log.d("Geofnce", "Going in")
 
             if (geofenceId == GeoFence().GEOFENCE_TYPE_HOME)
             {
                 if (type == "ENTER")
                 {
+                    Log.d("HOME", "Welcome home!")
                     //Send notification for final odometer tally
                     //Give option for end of the day statistics
+                    noteMan.showNotification(R.layout.notification_enter_home, "temp", "enter_home", 1)
                 }
                 else if (type == "EXIT")
                 {
+                    Log.d("HOME", "Thanks for stopping by!")
+                    noteMan.showNotification(R.layout.notification_leaving_home, "temp", "leaving_home", 2)
                     // 2 choices here:
                     // 1. Wait ~5 minutes. Open notification asking them to enter new work
                     //                     Or when entering work hide the notification
@@ -74,7 +86,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
                 }
                 else if (type == "DWELL")
                 {
-                    Toast.makeText(context, "Triggered dwell!", Toast.LENGTH_LONG).show()
                     // No action?
                 }
             }
@@ -82,11 +93,17 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
             {
                 if (type == "ENTER")
                 {
+                    Log.d("WORK", "Make sure to update your odo")
+
+                    noteMan.showNotification(R.layout.notification_enter_work, "temp", "enter_work", 3)
                     // Open notification asking for updated odometer (Use maps to estimate in absence of history data)
                     // "Does this look right?"
                 }
                 else if (type == "EXIT")
                 {
+                    Log.d("WORK", "Thanks for stopping bye. Ill check to see when you reach the next place")
+
+                    noteMan.showNotification(R.layout.notification_leaving_work, "temp", "exit_home", 1)
                     // If they chose to update later (See Motion_Detector), this will show up:
                     //         "Quickly update your odometer!"
                     // 2 choices here:
@@ -103,6 +120,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
             {
                 if (type == "EXIT")
                 {
+                    Log.d("DWELL", "This isnt work, moving on")
+                    //noteMan.showNotification(R.layout.notification_leaving_work, "temp", "exit_home", 1)
                     // Disable and delete this geofence
                     // Set a timer for when the next MD geofence should start up (~1 minute to account for dwell time?)
                 }
@@ -111,6 +130,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
                     // "Have you arrived? (redir to add new work place)" "Not sure what odo says? Ill update it later"
                     // Make sure to update new geofence when done
                     // Maps to estimate distance from starting point
+                    Log.d("DWELL", "Have you arrived? (redir to add new work place) Not sure what odo says? Ill update it later")
+
+                    noteMan.showNotification(R.layout.notification_dwell, "temp", "dwell", 1)
                 }
             }
             else //Geofence().GEOFENCE_TYPE_UNKNOWN

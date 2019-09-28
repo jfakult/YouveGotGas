@@ -23,7 +23,10 @@ import net.fakult.youvegotgas.GeofenceBroadcastReceiver
 import net.fakult.youvegotgas.R
 import android.media.ToneGenerator
 import android.media.AudioManager
-
+import com.google.firebase.auth.FirebaseAuth
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 
 const val TAG: String = "GeoDash"
@@ -34,6 +37,9 @@ class GeofenceDashboardFragment : Fragment()
     private lateinit var geofenceManager: GeoFence
     private lateinit var databaseReference: DatabaseReference
     private lateinit var activity: Activity
+    private lateinit var auth: FirebaseAuth
+    private lateinit var firebaseID: String
+
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this.context, GeofenceBroadcastReceiver::class.java)
@@ -46,8 +52,8 @@ class GeofenceDashboardFragment : Fragment()
     {
         activity = context as Activity
 
-        val toneGen1 = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
-        toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150)
+        auth = FirebaseAuth.getInstance()
+        firebaseID = auth.uid!!
 
         geofencingClient = LocationServices.getGeofencingClient(this.activity as Activity)
         geofenceManager = GeoFence()
@@ -64,13 +70,21 @@ class GeofenceDashboardFragment : Fragment()
         val setHomeGeofenceButton: Button = root.findViewById(R.id.set_home_geofence_button)
         setHomeGeofenceButton.setOnClickListener {
             val latLng: Array<Double> = geofenceManager.getCurrentLocation(this.context!!)
-            Log.d("going in", latLng[0].toString())
-            //geofenceManager.createGeofence(geofencingClient, geofencePendingIntent, GeoFence().GEOFENCE_TYPE_HOME, latLng[0], latLng[1])
-            geofenceManager.createGeofence(activity, geofencingClient, geofencePendingIntent, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
+
+            //DELET THIS :(
+            geofenceManager.removeGeofence(geofencingClient, activity, databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR.toString() + "+" + latLng[0] + "+" + latLng[1])
+
+            val success = geofenceManager.createGeofence(activity, geofencingClient, geofencePendingIntent, databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
         }
+
+        //val inst = FirebaseDatabase.getInstance()
+        //val ref = inst.getReference("users").child(auth.uid.toString()).child("test")
+        //ref.setValue("value")
 
         databaseReference = FirebaseDatabase.getInstance()
             .reference
+
+        //geofenceManager.removeAllGeofences(geofencingClient, geofencePendingIntent, activity, databaseReference, firebaseID)
 
         odometerInput.setText(loadOdometer(activity).toString())
         odometerInput.addTextChangedListener(object : TextWatcher
@@ -131,8 +145,7 @@ class GeofenceDashboardFragment : Fragment()
             .apply()
 
         //Upload result to firebase asynchronously as well
-        databaseReference.child("Users")
-            .child("test")
-            .setValue("odometer", updatedOdometer)
+        databaseReference.child("users").child(firebaseID).child("odometer")
+            .setValue(updatedOdometer)
     }
 }

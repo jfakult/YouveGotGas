@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
+import com.google.firebase.database.DatabaseReference
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -52,22 +53,11 @@ class GeoFence
         return latLng.toTypedArray()
     }
 
-    fun createGeofence(activity: Activity, geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent, type: Int, lat: Double, lng: Double)
+    fun createGeofence(activity: Activity, geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent, databaseReference: DatabaseReference, firebaseID: String, type: Int, lat: Double, lng: Double): Boolean
     {
-        val registeredGeofences = activity.getPreferences(Context.MODE_PRIVATE)
-            .getString("registeredGeofences", "")
+        val geofenceJSON = loadGeofences(activity)
 
-        var geofenceJSON = JSONArray("")
-        try
-        {
-            geofenceJSON = JSONArray(registeredGeofences)
-        }
-        catch (e : JSONException)
-        {
-            // Do nothing
-        }
-
-        for (i in 0..geofenceJSON.length())
+        for (i in 0 until geofenceJSON.length())
         {
             val geofence = geofenceJSON.getJSONObject(i)
 
@@ -75,7 +65,7 @@ class GeoFence
             {
                 Toast.makeText(activity.applicationContext, "Already created a geofence here", Toast.LENGTH_LONG)
                     .show()
-                return
+                return false
             }
         }
 
@@ -91,13 +81,7 @@ class GeoFence
                     Toast.makeText(geofencingClient.applicationContext, "Successfully made geofence!", Toast.LENGTH_LONG)
                         .show()
 
-                    val newGeofence = JSONObject("{\"type\": $type, \"lat\": $lat, \"lng\": $lng}")
-                    geofenceJSON.put(newGeofence)
-
-                    activity.getPreferences(Context.MODE_PRIVATE)
-                        .edit()
-                        .putString("registeredGeofences", geofenceJSON.toString())
-                        .apply()
+                    updateGeofences(activity, geofenceJSON, databaseReference, firebaseID, type, lat, lng)
                 }
                 addOnFailureListener {
                     Log.d("error", it.message!!)
@@ -105,21 +89,42 @@ class GeoFence
                         .show()
                 }
             }
+
+        return true
     }
 
-    fun removeGeofence(geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent)
+    fun removeAllGeofences(geofencingClient: GeofencingClient, pendingIntent: PendingIntent, activity: Activity, databaseReference: DatabaseReference, firebaseID: String)
     {
-        geofencingClient.removeGeofences(geofencePendingIntent)
+        geofencingClient.removeGeofences(pendingIntent)
             ?.run {
                 addOnSuccessListener {
-                    Toast.makeText(geofencingClient.applicationContext, "Successfully removed geofence!", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(geofencingClient.applicationContext, "Successfully removed all geofences!", Toast.LENGTH_LONG)
+                    //.show()
                 }
                 addOnFailureListener {
                     Toast.makeText(geofencingClient.applicationContext, "failed to remove geofence", Toast.LENGTH_LONG)
                         .show()
                 }
             }
+
+        deleteGeofenceData(activity, databaseReference, firebaseID, "*")
+    }
+
+    fun removeGeofence(geofencingClient: GeofencingClient, activity: Activity, databaseReference: DatabaseReference, firebaseID: String, geofenceID: String)
+    {
+        geofencingClient.removeGeofences(listOf(geofenceID))
+            ?.run {
+                addOnSuccessListener {
+                    Toast.makeText(geofencingClient.applicationContext, "Successfully removed geofence!", Toast.LENGTH_LONG)
+                    //.show()
+                }
+                addOnFailureListener {
+                    Toast.makeText(geofencingClient.applicationContext, "failed to remove geofence", Toast.LENGTH_LONG)
+                        .show()
+                }
+            }
+
+        deleteGeofenceData(activity, databaseReference, firebaseID, geofenceID)
     }
 
     private fun buildGeofence(latitude: Double, longitude: Double, radius: Double, type: Int): Geofence
@@ -133,8 +138,6 @@ class GeoFence
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .setLoiteringDelay(5000)
             .build()
-
-
     }
 
     private fun buildGeofencingRequest(geofence: Geofence): GeofencingRequest
@@ -150,5 +153,70 @@ class GeoFence
     private fun isInSameArea(lat1: Double, lat2: Double, lng1: Double, lng2: Double): Boolean
     {
         return (abs(lat1 - lat2) < 0.01) && (abs(lng1 - lng2) < 0.01)
+    }
+
+    private fun updateGeofences(activity: Activity, geofenceJSON: JSONArray, databaseReference: DatabaseReference, firebaseID: String, type: Int, lat: Double, lng: Double)
+    {
+        val newGeofence = JSONObject("{\"type\": $type, \"lat\": $lat, \"lng\": $lng}")
+        geofenceJSON.put(newGeofence)
+
+        activity.getPreferences(Context.MODE_PRIVATE)
+            .edit()
+            .putString("registeredGeofences", geofenceJSON.toString())
+            .apply()
+
+        Log.d("Geofences", "updating to firebase")
+        //Upload result to firebase asynchronously as well
+        databaseReference.child("users")
+            .child(firebaseID)
+            .child("registeredGeofences")
+            .setValue("$type+$lat+$lng")
+    }
+
+    private fun loadGeofences(activity: Activity) : JSONArray
+    {
+        val registeredGeofences = activity.getPreferences(Context.MODE_PRIVATE)
+            .getString("registeredGeofences", "")
+
+        var geofenceJSON = JSONArray("[]")
+        try
+        {
+            geofenceJSON = JSONArray(registeredGeofences)
+        }
+        catch (e: JSONException)
+        {
+            // Do nothing
+        }
+
+        return geofenceJSON
+    }
+
+    private fun deleteGeofenceData(activity: Activity, databaseReference: DatabaseReference, firebaseID: String, id : String)
+    {
+        val geofencesJSON = loadGeofences(activity)
+
+        var i = 0
+        while (i < geofencesJSON.length())
+        {
+            val geofence = geofencesJSON.getJSONObject(i)
+
+            val geoID = geofence.getInt("type").toString() + "+" + geofence.getDouble("lat").toString() + "+" + geofence.getDouble("lng").toString()
+            if (id == "*" || geoID == id)
+            {
+                geofencesJSON.remove(i)
+                i--
+            }
+
+            i++
+        }
+
+        activity.getPreferences(Context.MODE_PRIVATE)
+            .edit()
+            .putString("registeredGeofences", geofencesJSON.toString())
+            .apply()
+
+        //Upload result to firebase asynchronously as well
+        databaseReference.child("users").child(firebaseID).child("registeredGeofences")
+            .setValue(geofencesJSON.toString())
     }
 }
