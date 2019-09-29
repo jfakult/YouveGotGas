@@ -73,7 +73,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:textAlignment="center"
-            android:id="@+id/create_geofence_button"
+            android:id="@+id/addWorkGeofencebutton"
             android:layout_below="@+id/current_location_text"
             android:textSize="20sp"
             android:text="Create New Stop"/>

@@ -24,6 +24,7 @@ import net.fakult.youvegotgas.R
 import android.media.ToneGenerator
 import android.media.AudioManager
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.android.synthetic.main.fragment_dashboard.*
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -39,14 +40,6 @@ class GeofenceDashboardFragment : Fragment()
     private lateinit var activity: Activity
     private lateinit var auth: FirebaseAuth
     private lateinit var firebaseID: String
-
-
-    private val geofencePendingIntent: PendingIntent by lazy {
-        val intent = Intent(this.context, GeofenceBroadcastReceiver::class.java)
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
-        PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
@@ -69,12 +62,18 @@ class GeofenceDashboardFragment : Fragment()
 
         val setHomeGeofenceButton: Button = root.findViewById(R.id.set_home_geofence_button)
         setHomeGeofenceButton.setOnClickListener {
-            val latLng: Array<Double> = geofenceManager.getCurrentLocation(this.context!!)
+            val latLng: Array<Double> = geofenceManager.getCurrentLocation(context!!)
 
             //DELET THIS :(
-            geofenceManager.removeGeofence(geofencingClient, activity, databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR.toString() + "+" + latLng[0] + "+" + latLng[1])
+            geofenceManager.removeGeofence(geofencingClient, activity, databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_HOME.toString() + "+" + latLng[0] + "+" + latLng[1])
 
-            val success = geofenceManager.createGeofence(activity, geofencingClient, geofencePendingIntent, databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
+            val success = geofenceManager.createGeofence(activity, geofencingClient, geofenceManager.getGeofencePendingIntent(context!!), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_HOME, latLng[0], latLng[1])
+        }
+
+        addWorkGeofencebutton.setOnClickListener {
+            val latLng: Array<Double> = geofenceManager.getCurrentLocation(context!!)
+
+            val success = geofenceManager.createGeofence(activity, geofencingClient, geofenceManager.getGeofencePendingIntent(context!!), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_WORK, latLng[0], latLng[1])
         }
 
         //val inst = FirebaseDatabase.getInstance()
@@ -145,7 +144,9 @@ class GeofenceDashboardFragment : Fragment()
             .apply()
 
         //Upload result to firebase asynchronously as well
-        databaseReference.child("users").child(firebaseID).child("odometer")
+        databaseReference.child("users")
+            .child(firebaseID)
+            .child("odometer")
             .setValue(updatedOdometer)
     }
 }

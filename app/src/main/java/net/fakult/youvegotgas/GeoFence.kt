@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.util.Log
@@ -171,6 +172,18 @@ class GeoFence
             .child(firebaseID)
             .child("registeredGeofences")
             .setValue("$type+$lat+$lng")
+    }
+
+    fun getGeofencePendingIntent(context: Context) : PendingIntent
+    {
+        val geofencePendingIntent: PendingIntent by lazy {
+            val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
+            // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
+            // addGeofences() and removeGeofences().
+            PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+
+        return geofencePendingIntent
     }
 
     private fun loadGeofences(activity: Activity) : JSONArray

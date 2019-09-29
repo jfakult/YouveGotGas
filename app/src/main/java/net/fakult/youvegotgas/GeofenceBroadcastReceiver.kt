@@ -6,10 +6,16 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.ToneGenerator
+import android.os.Handler
 import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
+import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+
+//Need to optimize geofence management in order to save battery... Dont forget!
 
 class GeofenceBroadcastReceiver : BroadcastReceiver()
 {
@@ -28,24 +34,29 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
             return
         }
 
-        val noteMan = NotificationManager(context!!)
+        val geofenceManager = GeoFence()
+        val geofencingClient = LocationServices.getGeofencingClient(context as Activity)
+        val auth = FirebaseAuth.getInstance()
+        val firebaseID = auth.uid!!
+        val databaseReference = FirebaseDatabase.getInstance()
+            .reference
+        val latLng = geofenceManager.getCurrentLocation(context)
+
+        val noteMan = NotificationManager(context)
 
         // Get the transition type.
         val geofenceTransition = geofencingEvent.geofenceTransition
 
-        if ((geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) or (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT))
+        if ((geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) or (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) or (geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL))
         {
             // Get the geofences that were triggered. A single event can trigger
             // multiple geofences.
             val triggeringGeofences = geofencingEvent.triggeringGeofences
 
             var type = "---"
-            if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER)
-                type = "ENTER"
-            else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT)
-                type = "EXIT"
-            else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL)
-                type = "DWELL"
+            if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) type = "ENTER"
+            else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) type = "EXIT"
+            else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) type = "DWELL"
 
 
             //for (geofence : Geofence in triggeringGeofences)
@@ -66,7 +77,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
             // Launch a notification based on the information received
             // Make sure to track "last geofence ID". HOME-HOME trips should be ignored
 
-            if (geofenceId == GeoFence().GEOFENCE_TYPE_HOME)
+            if (geofenceId == geofenceManager.GEOFENCE_TYPE_HOME)
             {
                 if (type == "ENTER")
                 {
@@ -74,34 +85,43 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
                     //Send notification for final odometer tally
                     //Give option for end of the day statistics
                     noteMan.showNotification(R.layout.notification_enter_home, "temp", "enter_home", 1)
+
+                    //Clear all geofences?
                 }
                 else if (type == "EXIT")
                 {
+                    //Start up all work geofences
                     Log.d("HOME", "Thanks for stopping by!")
                     noteMan.showNotification(R.layout.notification_leaving_home, "temp", "leaving_home", 2)
-                    // 2 choices here:
-                    // 1. Wait ~5 minutes. Open notification asking them to enter new work
-                    //                     Or when entering work hide the notification
-                    // 2. Periodically track speed with GPS, set up quick "dwell" geofence to determine if they have arrived
+
+                    //Launch our dwell geofences to track when we are arriving at work
+                    //Wait ~3 minutes to let them get far enough away from home
+                    Handler().postDelayed({
+                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
+                                          }, 3 * 60 * 1000)
                 }
-                else if (type == "DWELL")
-                {
-                    // No action?
-                }
+                // Ignore DWELL
             }
-            else if (geofenceId == GeoFence().GEOFENCE_TYPE_WORK)
+            else if (geofenceId == geofenceManager.GEOFENCE_TYPE_WORK)
             {
                 if (type == "ENTER")
                 {
                     Log.d("WORK", "Make sure to update your odo")
 
                     noteMan.showNotification(R.layout.notification_enter_work, "temp", "enter_work", 3)
-                    // Open notification asking for updated odometer (Use maps to estimate in absence of history data)
+                    // Open notification asking for updated odometer
                     // "Does this look right?"
+
+
+
+                    // Clear dwell geofences
+                    // Clear work geofences
                 }
                 else if (type == "EXIT")
                 {
-                    Log.d("WORK", "Thanks for stopping bye. Ill check to see when you reach the next place")
+                    // Restart all work geofences
+
+                    Log.d("WORK", "Thanks for stopping by. Ill check to see when you reach the next place")
 
                     noteMan.showNotification(R.layout.notification_leaving_work, "temp", "exit_home", 1)
                     // If they chose to update later (See Motion_Detector), this will show up:
@@ -111,22 +131,28 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
                     //                     Or when entering work hide the notification
                     // 2. Wait ~1 minute, then periodically track speed with GPS, set up quick "dwell" geofence to determine if they have arrived
                 }
-                else if (type == "DWELL")
-                {
-                    // No action?
-                }
+                // Ignore DWELL
             }
-            else if (geofenceId == GeoFence().GEOFENCE_TYPE_MOTION_DETECTOR)
+            else if (geofenceId == geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR)
             {
+                // Ignore ENTER
                 if (type == "EXIT")
                 {
                     Log.d("DWELL", "This isnt work, moving on")
                     //noteMan.showNotification(R.layout.notification_leaving_work, "temp", "exit_home", 1)
                     // Disable and delete this geofence
                     // Set a timer for when the next MD geofence should start up (~1 minute to account for dwell time?)
+
+                    val success = geofenceManager.removeGeofence(geofencingClient, context, databaseReference, firebaseID, triggeringGeofences[0].requestId)
+
+                    Handler().postDelayed({
+                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
+                                          }, 30 * 1000) // 30 seconds
                 }
                 else if (type == "DWELL") //Dwell time ~= 3 minutes (long enough to never trigger at a light)
                 {
+                    //Clear all work geofences
+
                     // "Have you arrived? (redir to add new work place)" "Not sure what odo says? Ill update it later"
                     // Make sure to update new geofence when done
                     // Maps to estimate distance from starting point
