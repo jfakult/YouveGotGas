@@ -42,7 +42,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
             .reference
         val latLng = geofenceManager.getCurrentLocation(context)
 
-        val noteMan = NotificationManager(context)
+        val noteMan = NotificationManager(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID)
 
         // Get the transition type.
         val geofenceTransition = geofencingEvent.geofenceTransition
@@ -123,7 +123,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
 
                     Log.d("WORK", "Thanks for stopping by. Ill check to see when you reach the next place")
 
-                    noteMan.showNotification(R.layout.notification_leaving_work, "temp", "exit_home", 1)
+                    //noteMan.showNotification(R.layout.notification_leaving_work, "temp", "exit_home", 1)
                     // If they chose to update later (See Motion_Detector), this will show up:
                     //         "Quickly update your odometer!"
                     // 2 choices here:

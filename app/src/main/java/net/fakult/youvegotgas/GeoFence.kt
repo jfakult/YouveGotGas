@@ -27,7 +27,8 @@ class GeoFence
     val GEOFENCE_TYPE_MOTION_DETECTOR = 2
     val GEOFENCE_TYPE_UNKNOWN = 99
 
-    val GEOFENCE_RADIUS: Double = 5000.0
+    val GEOFENCE_RADIUS: Double = 500.0
+    val GEOFENCE_DWELL_RADIUS = 250.0
 
     fun getCurrentLocation(context: Context): Array<Double>
     {
@@ -70,7 +71,14 @@ class GeoFence
             }
         }
 
-        val geofence = buildGeofence(lat, lng, GEOFENCE_RADIUS, type)
+        val geofence = (if (type == GEOFENCE_TYPE_MOTION_DETECTOR)
+        {
+            buildGeofence(lat, lng, GEOFENCE_RADIUS, type)
+        }
+        else
+        {
+            buildGeofence(lat, lng, GEOFENCE_DWELL_RADIUS, type)
+        }) ?: return false
 
         //Do something with firebase based on type
 
@@ -128,17 +136,43 @@ class GeoFence
         deleteGeofenceData(activity, databaseReference, firebaseID, geofenceID)
     }
 
-    private fun buildGeofence(latitude: Double, longitude: Double, radius: Double, type: Int): Geofence
+    private fun buildGeofence(latitude: Double, longitude: Double, radius: Double, type: Int): Geofence?
     {
-        return Geofence.Builder()
-            //.setRequestId("$type+$latitude+$longitude")
-            .setRequestId("$type+$latitude+$longitude")
-            .setCircularRegion(latitude, longitude, radius.toFloat())
-            //.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_ENTER)
-            .setExpirationDuration(Geofence.NEVER_EXPIRE)
-            .setLoiteringDelay(5000)
-            .build()
+        if (type == GEOFENCE_TYPE_HOME)
+        {
+            return Geofence.Builder()
+                .setRequestId("$type+$latitude+$longitude")
+                .setCircularRegion(latitude, longitude, radius.toFloat())
+                //.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_ENTER)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setLoiteringDelay(5000)
+                .build()
+        }
+        else if (type == GEOFENCE_TYPE_HOME)
+        {
+            return Geofence.Builder()
+                .setRequestId("$type+$latitude+$longitude")
+                .setCircularRegion(latitude, longitude, radius.toFloat())
+                //.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_ENTER)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setLoiteringDelay(5000)
+                .build()
+        }
+        else if (type == GEOFENCE_TYPE_HOME)
+        {
+            return Geofence.Builder()
+                .setRequestId("$type+$latitude+$longitude")
+                .setCircularRegion(latitude, longitude, radius.toFloat())
+                //.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_ENTER)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setLoiteringDelay(5000)
+                .build()
+        }
+
+        return null
     }
 
     private fun buildGeofencingRequest(geofence: Geofence): GeofencingRequest
@@ -174,7 +208,7 @@ class GeoFence
             .setValue("$type+$lat+$lng")
     }
 
-    fun getGeofencePendingIntent(context: Context) : PendingIntent
+    fun getGeofencePendingIntent(context: Context): PendingIntent
     {
         val geofencePendingIntent: PendingIntent by lazy {
             val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
@@ -186,7 +220,7 @@ class GeoFence
         return geofencePendingIntent
     }
 
-    private fun loadGeofences(activity: Activity) : JSONArray
+    private fun loadGeofences(activity: Activity): JSONArray
     {
         val registeredGeofences = activity.getPreferences(Context.MODE_PRIVATE)
             .getString("registeredGeofences", "")
@@ -204,7 +238,7 @@ class GeoFence
         return geofenceJSON
     }
 
-    private fun deleteGeofenceData(activity: Activity, databaseReference: DatabaseReference, firebaseID: String, id : String)
+    private fun deleteGeofenceData(activity: Activity, databaseReference: DatabaseReference, firebaseID: String, id: String)
     {
         val geofencesJSON = loadGeofences(activity)
 
@@ -229,7 +263,9 @@ class GeoFence
             .apply()
 
         //Upload result to firebase asynchronously as well
-        databaseReference.child("users").child(firebaseID).child("registeredGeofences")
+        databaseReference.child("users")
+            .child(firebaseID)
+            .child("registeredGeofences")
             .setValue(geofencesJSON.toString())
     }
 }

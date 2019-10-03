@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:text="Leaving home"
-        android:id="@+id/notification_title"
+        android:layout_height="wrap_content"
+        android:id="@+id/leavingHomeText"
+        android:text="Ready to leave?"
         style="@style/TextAppearance.Compat.Notification.Title" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/leaveHomeOdometerText"
+        android:text="Tap here to update your odometer"
+        style="@style/TextAppearance.Compat.Notification.Info" />
+
+
+    <!--
+    <com.alexzaitsev.meternumberpicker.MeterView
+        style="@style/MeterViewStyle"
+        android:id="@+id/odometerPicker"
+        app:layout_constraintTop_toBottomOf="@+id/leavingHomeText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    -->
 
 </LinearLayout>

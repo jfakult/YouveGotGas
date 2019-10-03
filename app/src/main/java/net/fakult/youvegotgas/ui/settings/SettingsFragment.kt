@@ -5,11 +5,12 @@ import android.app.PendingIntent
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import net.fakult.youvegotgas.MorningNotificationService
+import net.fakult.youvegotgas.MorningNotificationReceiver
 import net.fakult.youvegotgas.R
 import java.util.*
 
@@ -27,16 +28,19 @@ class SettingsFragment : Fragment()
         This is temporary, just for testing for now. To be implemented by buttons on this page later
          */
 
-        val intent = Intent(context, MorningNotificationService::class.java)
-        val alarmManager = context?.getSystemService(ALARM_SERVICE) as? AlarmManager
-        val pendingIntent = PendingIntent.getService(context, CODE_ENTER_HOME, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val intent = Intent(context, MorningNotificationReceiver::class.java)
+        //intent.putExtra("notificationId", CODE_ENTER_HOME)
+        val alarmManager = context!!.getSystemService(ALARM_SERVICE) as AlarmManager
+        val pendingIntent = PendingIntent.getBroadcast(context, CODE_ENTER_HOME, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         // Issue with getservice above?
 
         val calendar = Calendar.getInstance()
 
-        calendar.add(Calendar.SECOND, 10)
+        calendar.add(Calendar.SECOND, 4)
 
-        alarmManager?.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+        Log.d("Alarm", "Should be set")
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
 
         return root
     }

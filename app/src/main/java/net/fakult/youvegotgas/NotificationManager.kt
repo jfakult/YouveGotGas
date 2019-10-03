@@ -2,24 +2,27 @@ package net.fakult.youvegotgas
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import com.google.android.gms.location.GeofencingClient
+import com.google.firebase.database.DatabaseReference
+import net.fakult.youvegotgas.ui.geofence_dashboard.GeofenceDashboardFragment
 
-class NotificationManager(val context: Context)
+class NotificationManager(val context: Context, val geofencingClient: GeofencingClient?, val geofencePendingIntent: PendingIntent?, val databaseReference: DatabaseReference?, val firebaseID: String?)
 {
-    fun showNotification(layoutID : Int, text: String, channelID : String, notificationID : Int)
+    fun showNotification(layoutID: Int, text: String, channelID: String, notificationID: Int)
     {
         Log.d("Note", "Opening")
         val notificationLayout = RemoteViews("net.fakult.youvegotgas", layoutID)
 
-        val customNotification = NotificationCompat.Builder(context,  channelID)
+        val customNotification = NotificationCompat.Builder(context, channelID)
             .setSmallIcon(R.drawable.logo2)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(notificationLayout)
-            .setCustomBigContentView(notificationLayout)
 
         val mNotificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -29,6 +32,66 @@ class NotificationManager(val context: Context)
             customNotification.setChannelId("Channel?")
             mNotificationManager.createNotificationChannel(channel)
         }
+
+        if (layoutID == R.layout.notification_leaving_home)
+        {
+            //notificationLayout.setTextViewText(R.id.leaveHomeOdometerText, "test")
+
+            val intent = Intent(context, UpdateOdometerScreen::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+            customNotification.setContentIntent(pendingIntent)
+            customNotification.setAutoCancel(true)
+        }
+
+        if (layoutID == R.layout.notification_dwell)
+        {
+            //notificationLayout.setTextViewText(R.id.dwellText, "test")
+
+            val intent = Intent(context, GeofenceDashboardFragment::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+            customNotification.setContentIntent(pendingIntent)
+            customNotification.setAutoCancel(true)
+        }
+
+        if (layoutID == R.layout.notification_enter_work)
+        {
+            //TODO
+            val geofenceTriggerLocation = "LOCATION"
+            notificationLayout.setTextViewText(R.id.notificationEnterWorkLocationTitle, "Arriving at $geofenceTriggerLocation")
+
+            val intent = Intent(context, UpdateOdometerScreen::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+            customNotification.setContentIntent(pendingIntent)
+            customNotification.setAutoCancel(true)
+        }
+
+        if (layoutID == R.layout.notification_leaving_work)
+        {
+            // Do nothing
+        }
+
+        if (layoutID == R.layout.notification_enter_home)
+        {
+            val intent = Intent(context, UpdateOdometerScreen::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+            customNotification.setContentIntent(pendingIntent)
+            customNotification.setAutoCancel(true)
+        }
+
+        customNotification.setCustomContentView(notificationLayout)
+        customNotification.setCustomBigContentView(notificationLayout)
 
         mNotificationManager.notify(notificationID, customNotification.build())
     }

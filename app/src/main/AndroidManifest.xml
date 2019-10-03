@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="net.fakult.youvegotgas">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +15,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".UpdateOdometerScreen" />
         <activity
             android:name=".MainActivity"
@@ -26,9 +30,12 @@
 
         <receiver android:name=".GeofenceBroadcastReceiver"
             android:enabled="true"
+            android:exported="true" />
+
+        <receiver android:name=".MorningNotificationReceiver"
+            android:enabled="true"
             android:exported="true"/>
 
-        <service android:name=".MorningNotificationService" />
     </application>
 
 </manifest>

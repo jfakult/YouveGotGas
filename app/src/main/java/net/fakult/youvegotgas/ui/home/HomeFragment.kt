@@ -1,37 +1,27 @@
-//AIzaSyCXJKSPAKpYppteR-jRoQ2eVsr4X4Bbb2E
-
 package net.fakult.youvegotgas.ui.home
 
 import android.app.Activity
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
-import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import net.fakult.youvegotgas.NotificationManager
 import net.fakult.youvegotgas.R
 
 private const val RC_SIGN_IN = 101
@@ -44,8 +34,8 @@ class HomeFragment : Fragment()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-        //val i = Intent(context, UpdateOdometerScreen::class.java)
-        //startActivity(i)
+        //val noteMan = NotificationManager(context!!, null, null, null, null)
+        //noteMan.showNotification(R.layout.notification_leaving_home, "text", "leaving_home", 111)
 
         val permissions = arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.INTERNET, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         this.requestPermissions(permissions, 0)
