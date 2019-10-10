@@ -21,7 +21,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import net.fakult.youvegotgas.NotificationManager
 import net.fakult.youvegotgas.R
 
 private const val RC_SIGN_IN = 101

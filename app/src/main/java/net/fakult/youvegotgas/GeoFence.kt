@@ -149,7 +149,7 @@ class GeoFence
                 .setLoiteringDelay(5000)
                 .build()
         }
-        else if (type == GEOFENCE_TYPE_HOME)
+        else if (type == GEOFENCE_TYPE_WORK)
         {
             return Geofence.Builder()
                 .setRequestId("$type+$latitude+$longitude")
@@ -160,7 +160,7 @@ class GeoFence
                 .setLoiteringDelay(5000)
                 .build()
         }
-        else if (type == GEOFENCE_TYPE_HOME)
+        else if (type == GEOFENCE_TYPE_MOTION_DETECTOR)
         {
             return Geofence.Builder()
                 .setRequestId("$type+$latitude+$longitude")

@@ -17,7 +17,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.android.synthetic.main.fragment_dashboard.*
 import net.fakult.youvegotgas.GeoFence
 import net.fakult.youvegotgas.R
 
@@ -53,7 +52,7 @@ class GeofenceDashboardFragment : Fragment()
         })*/
 
         val setHomeGeofenceButton: Button = root.findViewById(R.id.set_home_geofence_button)
-        val addWorkGeofenceButton : Button = root.findViewById(R.id.addWorkGeofencebutton)
+        val addWorkGeofenceButton: Button = root.findViewById(R.id.addWorkGeofencebutton)
         setHomeGeofenceButton.setOnClickListener {
             val latLng: Array<Double> = geofenceManager.getCurrentLocation(context!!)
 

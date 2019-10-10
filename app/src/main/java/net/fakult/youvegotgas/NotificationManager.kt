@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.GeofencingClient
@@ -15,9 +14,8 @@ import net.fakult.youvegotgas.ui.geofence_dashboard.GeofenceDashboardFragment
 
 class NotificationManager(val context: Context, val geofencingClient: GeofencingClient?, val geofencePendingIntent: PendingIntent?, val databaseReference: DatabaseReference?, val firebaseID: String?)
 {
-    fun showNotification(layoutID: Int, text: String, channelID: String, notificationID: Int)
+    fun showNotification(layoutID: Int, dataManager: DataManager, distance: Int?, channelID: String, notificationID: Int)
     {
-        Log.d("Note", "Opening")
         val notificationLayout = RemoteViews("net.fakult.youvegotgas", layoutID)
 
         val customNotification = NotificationCompat.Builder(context, channelID)
@@ -35,7 +33,8 @@ class NotificationManager(val context: Context, val geofencingClient: Geofencing
 
         if (layoutID == R.layout.notification_leaving_home)
         {
-            //notificationLayout.setTextViewText(R.id.leaveHomeOdometerText, "test")
+            val odometer = dataManager.getData("odometer", 0, null) as Int
+            notificationLayout.setTextViewText(R.id.odometerValueText, odometer.toString())
 
             val intent = Intent(context, UpdateOdometerScreen::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -46,7 +45,7 @@ class NotificationManager(val context: Context, val geofencingClient: Geofencing
             customNotification.setAutoCancel(true)
         }
 
-        if (layoutID == R.layout.notification_dwell)
+        if (layoutID == R.layout.notification_dwell) // Dont forget to launch a new work geofence
         {
             //notificationLayout.setTextViewText(R.id.dwellText, "test")
 

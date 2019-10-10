@@ -27,7 +27,7 @@ class UpdateOdometerScreen : AppCompatActivity()
 {
     private var updatedOdometer: Int = -1
     private lateinit var databaseReference: DatabaseReference
-    private lateinit var activity : Activity
+    private lateinit var activity: Activity
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -48,8 +48,8 @@ class UpdateOdometerScreen : AppCompatActivity()
         odoPicker.value = currentOdometer
 
         //odoPicker.setOnValueChangedListener { _, _, newVal ->
-            //Underscores for unused params
-            //updatedOdometer = newVal
+        //Underscores for unused params
+        //updatedOdometer = newVal
         //}
 
         submitButton.setOnClickListener {
@@ -122,12 +122,10 @@ class UpdateOdometerScreen : AppCompatActivity()
             {
                 // Start expanding expandingSubmit
 
-                if (expandableElement.animation != null)
-                    expandableElement.animation.setAnimationListener(null)
+                if (expandableElement.animation != null) expandableElement.animation.setAnimationListener(null)
                 expandableElement.clearAnimation()
 
-                if (submitButton.animation != null)
-                    submitButton.animation.setAnimationListener(null)
+                if (submitButton.animation != null) submitButton.animation.setAnimationListener(null)
                 submitButton.clearAnimation()
 
                 expandAnim.setAnimationListener(ExpandAnimListener())
@@ -183,31 +181,31 @@ class UpdateOdometerScreen : AppCompatActivity()
             return true
         }
 
-        private inner class ExpandAnimListener :  Animation.AnimationListener
+        private inner class ExpandAnimListener : Animation.AnimationListener
         {
-                override fun onAnimationRepeat(animation: Animation?)
-                {
-                    // Do nothing
-                }
+            override fun onAnimationRepeat(animation: Animation?)
+            {
+                // Do nothing
+            }
 
-                override fun onAnimationEnd(animation: Animation?)
+            override fun onAnimationEnd(animation: Animation?)
+            {
+                if (System.currentTimeMillis() - outerExpandStartTime >= (outerExpandSpeed - 10))
                 {
-                    if (System.currentTimeMillis() - outerExpandStartTime >= (outerExpandSpeed - 10))
-                    {
-                        innerExpandStartTime = System.currentTimeMillis()
-                        submitButton.startAnimation(innerExpandAnim)
-                    }
-                    outerExpandStartTime = 2.0.pow(62.0)
-                        .toLong() // A Big number
+                    innerExpandStartTime = System.currentTimeMillis()
+                    submitButton.startAnimation(innerExpandAnim)
                 }
+                outerExpandStartTime = 2.0.pow(62.0)
+                    .toLong() // A Big number
+            }
 
-                override fun onAnimationStart(animation: Animation?)
-                {
-                    outerExpandStartTime = System.currentTimeMillis()
-                }
+            override fun onAnimationStart(animation: Animation?)
+            {
+                outerExpandStartTime = System.currentTimeMillis()
+            }
         }
 
-        private inner class InnerShrinkAnimListener :  Animation.AnimationListener
+        private inner class InnerShrinkAnimListener : Animation.AnimationListener
         {
             override fun onAnimationRepeat(animation: Animation?)
             {
@@ -233,7 +231,7 @@ class UpdateOdometerScreen : AppCompatActivity()
             }
         }
 
-        private inner class InnerExpandAnimListener :  Animation.AnimationListener
+        private inner class InnerExpandAnimListener : Animation.AnimationListener
         {
             override fun onAnimationRepeat(animation: Animation?)
             {

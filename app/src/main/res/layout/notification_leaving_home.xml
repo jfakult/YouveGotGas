@@ -14,6 +14,13 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/odometerValueText"
+        android:text=""
+        style="@style/TextAppearance.Compat.Notification.Info" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/leaveHomeOdometerText"
         android:text="Tap here to update your odometer"
         style="@style/TextAppearance.Compat.Notification.Info" />

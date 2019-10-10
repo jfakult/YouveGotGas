@@ -13,40 +13,51 @@
         android:layout_marginEnd="8dp"
         android:text="@string/title_settings"
         android:textAlignment="center"
-        android:textSize="20sp"
+        android:textSize="24sp"
+        android:textColor="#000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:id="@+id/timeLeaveText"
+        android:text="What time do you leave in the morning?"
+        app:layout_constraintTop_toBottomOf="@+id/textSettings">
+
+    </TextView>
+
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
         app:layout_constraintTop_toBottomOf="@+id/textSettings">
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:id="@+id/geofenceList">
+            android:id="@+id/morningAlarmRecycler">
 
-
-
-        </LinearLayout>
+        </androidx.recyclerview.widget.RecyclerView>
 
     </ScrollView>
 
     <Button
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="192dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="64dp"
         android:background="@drawable/circle_shape"
-        android:text="+"
+        android:text="Add Start Time"
         android:textColor="#444"
-        android:textSize="32sp"
+        android:textSize="20sp"
+        android:id="@+id/addStartButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-
     </Button>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,15 +1,9 @@
 package net.fakult.youvegotgas
 
-import android.app.Activity
-import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.IBinder
-import android.util.Log
-import android.widget.RemoteViews
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -28,14 +22,16 @@ class MorningNotificationReceiver : BroadcastReceiver()
         val firebaseID = auth.uid!!
         val databaseReference = FirebaseDatabase.getInstance()
             .reference
+        val dataManager = DataManager(context)
 
         val noteMan = NotificationManager(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID)
 
-        Toast.makeText(context, "Called MorningNotService", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Called MorningNotService", Toast.LENGTH_SHORT)
+            .show()
 
         val notificationId = R.layout.notification_leaving_home //intent.getIntExtra("notificationId")
 
-        noteMan.showNotification(notificationId, "text", notificationId.toString(), notificationId)
+        noteMan.showNotification(notificationId, dataManager, 0, notificationId.toString(), notificationId)
 
         /*if (startId == CODE_ENTER_HOME)
         {
