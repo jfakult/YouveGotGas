@@ -17,6 +17,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import net.fakult.youvegotgas.DataManager
 import net.fakult.youvegotgas.GeoFence
 import net.fakult.youvegotgas.R
 
@@ -31,6 +32,7 @@ class GeofenceDashboardFragment : Fragment()
     private lateinit var activity: Activity
     private lateinit var auth: FirebaseAuth
     private lateinit var firebaseID: String
+    private lateinit var dataManager: DataManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
@@ -41,6 +43,8 @@ class GeofenceDashboardFragment : Fragment()
 
         geofencingClient = LocationServices.getGeofencingClient(this.activity as Activity)
         geofenceManager = GeoFence()
+
+        dataManager = DataManager(context!!)
 
         /*dashboardViewModel = ViewModelProviders.of(this).get(GeofenceDashboardViewModel::class.java) */
         val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
@@ -59,13 +63,14 @@ class GeofenceDashboardFragment : Fragment()
             //DELET THIS :(
             geofenceManager.removeGeofence(geofencingClient, activity, databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_HOME.toString() + "+" + latLng[0] + "+" + latLng[1])
 
-            val success = geofenceManager.createGeofence(activity, geofencingClient, geofenceManager.getGeofencePendingIntent(context!!), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_HOME, latLng[0], latLng[1])
+            val success = geofenceManager.createGeofence(activity, geofencingClient, geofenceManager.getGeofencePendingIntent(context!!), databaseReference, dataManager, firebaseID, geofenceManager.GEOFENCE_TYPE_HOME, latLng[0], latLng[1], "home")
         }
 
         addWorkGeofenceButton.setOnClickListener {
             val latLng: Array<Double> = geofenceManager.getCurrentLocation(context!!)
 
-            val success = geofenceManager.createGeofence(activity, geofencingClient, geofenceManager.getGeofencePendingIntent(context!!), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_WORK, latLng[0], latLng[1])
+            val name = System.currentTimeMillis().toString()
+            val success = geofenceManager.createGeofence(activity, geofencingClient, geofenceManager.getGeofencePendingIntent(context!!), databaseReference, dataManager, firebaseID, geofenceManager.GEOFENCE_TYPE_WORK, latLng[0], latLng[1], name)
         }
 
         //val inst = FirebaseDatabase.getInstance()

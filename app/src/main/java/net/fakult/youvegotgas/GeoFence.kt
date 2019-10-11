@@ -20,7 +20,7 @@ import org.json.JSONObject
 import kotlin.math.abs
 
 
-class GeoFence
+class GeoFence()
 {
     val GEOFENCE_TYPE_HOME = 0
     val GEOFENCE_TYPE_WORK = 1
@@ -55,7 +55,7 @@ class GeoFence
         return latLng.toTypedArray()
     }
 
-    fun createGeofence(activity: Activity, geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent, databaseReference: DatabaseReference, firebaseID: String, type: Int, lat: Double, lng: Double): Boolean
+    fun createGeofence(activity: Activity, geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent, databaseReference: DatabaseReference, dataManager: DataManager, firebaseID: String, type: Int, lat: Double, lng: Double, name: String): Boolean
     {
         val geofenceJSON = loadGeofences(activity)
 
@@ -90,7 +90,7 @@ class GeoFence
                     Toast.makeText(geofencingClient.applicationContext, "Successfully made geofence!", Toast.LENGTH_LONG)
                         .show()
 
-                    updateGeofences(activity, geofenceJSON, databaseReference, firebaseID, type, lat, lng)
+                    updateGeofences(activity, geofenceJSON, databaseReference, dataManager, firebaseID, type, lat, lng, name)
                 }
                 addOnFailureListener {
                     Log.d("error", it.message!!)
@@ -190,22 +190,19 @@ class GeoFence
         return (abs(lat1 - lat2) < 0.01) && (abs(lng1 - lng2) < 0.01)
     }
 
-    private fun updateGeofences(activity: Activity, geofenceJSON: JSONArray, databaseReference: DatabaseReference, firebaseID: String, type: Int, lat: Double, lng: Double)
+    private fun updateGeofences(activity: Activity, geofenceJSON: JSONArray, databaseReference: DatabaseReference, dataManager: DataManager, firebaseID: String, type: Int, lat: Double, lng: Double, name: String)
     {
         val newGeofence = JSONObject("{\"type\": $type, \"lat\": $lat, \"lng\": $lng}")
         geofenceJSON.put(newGeofence)
 
-        activity.getPreferences(Context.MODE_PRIVATE)
-            .edit()
-            .putString("registeredGeofences", geofenceJSON.toString())
-            .apply()
-
-        Log.d("Geofences", "updating to firebase")
-        //Upload result to firebase asynchronously as well
-        databaseReference.child("users")
-            .child(firebaseID)
-            .child("registeredGeofences")
-            .setValue("$type+$lat+$lng")
+        if (type == GEOFENCE_TYPE_HOME)
+        {
+            dataManager.setData("latLng", "$lat+$lng", listOf("geofences", "home").toTypedArray())
+        }
+        else if (type == GEOFENCE_TYPE_WORK)
+        {
+            dataManager.setData("name", "name", listOf("geofences", "work", "$lat+$lng").toTypedArray())
+        }
     }
 
     fun getGeofencePendingIntent(context: Context): PendingIntent

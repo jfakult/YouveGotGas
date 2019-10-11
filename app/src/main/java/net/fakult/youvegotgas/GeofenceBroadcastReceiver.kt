@@ -129,13 +129,14 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
 
                     dataManager.logEvent("exit", "home", geofenceLat, geofenceLng, 0)
 
-                    noteMan.showNotification(R.layout.notification_leaving_home, dataManager, 0, "leaving_home", 2)
+                    //Opposite of this actually, kill this notification
+                    //noteMan.showNotification(R.layout.notification_leaving_home, dataManager, 0, "leaving_home", 2)
 
                     //Launch our dwell geofences to track when we are arriving at work
                     //Wait ~3 minutes to let them get far enough away from home
                     Handler().postDelayed({
                                               val latLng = geofenceManager.getCurrentLocation(context)
-                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
+                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, dataManager, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1], "")
                                           }, 3 * 60 * 1000)
                 }
                 // Ignore DWELL
@@ -175,7 +176,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
 
                     Handler().postDelayed({
                                               val latLng = geofenceManager.getCurrentLocation(context)
-                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
+                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, dataManager, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1], "")
                                           }, 3 * 60 * 1000)
 
                     //noteMan.showNotification(R.layout.notification_leaving_work, "temp", "exit_home", 1)
@@ -203,7 +204,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
 
                     Handler().postDelayed({
                                               val latLng = geofenceManager.getCurrentLocation(context)
-                                              geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
+                                              geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, dataManager, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1], "")
                                           }, 30 * 1000) // 30 seconds
                 }
                 else if (type == "DWELL") //Dwell time ~= 3 minutes (long enough to never trigger at a light)

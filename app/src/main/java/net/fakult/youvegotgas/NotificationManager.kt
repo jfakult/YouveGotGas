@@ -39,6 +39,7 @@ class NotificationManager(val context: Context, val geofencingClient: Geofencing
             val intent = Intent(context, UpdateOdometerScreen::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
+            intent.putExtra("action", "temp")
             val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
 
             customNotification.setContentIntent(pendingIntent)
@@ -52,7 +53,13 @@ class NotificationManager(val context: Context, val geofencingClient: Geofencing
             val intent = Intent(context, GeofenceDashboardFragment::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
+            intent.putExtra("action", "addEnterTrigger")
             val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+            //Need to also add any logic regarding the new work geofence
+            // layoutID = R.layout.notification_enter_work?
+            //val latLng = geofenceManager.getCurrentLocation(context)
+            //val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1])
 
             customNotification.setContentIntent(pendingIntent)
             customNotification.setAutoCancel(true)

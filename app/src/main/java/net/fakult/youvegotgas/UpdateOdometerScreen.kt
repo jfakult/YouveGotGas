@@ -3,6 +3,7 @@ package net.fakult.youvegotgas
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -28,17 +29,20 @@ class UpdateOdometerScreen : AppCompatActivity()
     private var updatedOdometer: Int = -1
     private lateinit var databaseReference: DatabaseReference
     private lateinit var activity: Activity
+    private lateinit var dataManager : DataManager
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_update_odometer_screen)
 
-        activity = this as Activity
+        activity = this
 
-        val currentOdometer: Int = loadOdometer(activity) // Get from either shared prefs or firebase (prob load all from firebase on start, update sharedprefs immediately to have local copy)
+        val action = savedInstanceState?.get("action")
+        val dataManager = DataManager(this)
+
+        val currentOdometer = dataManager.getData("odometer", -1, null) as Int // Get from either shared prefs or firebase (prob load all from firebase on start, update sharedprefs immediately to have local copy)
         updatedOdometer = currentOdometer
-
 
         //val odoPicker: NumberPicker = odometerPicker
         val odoPicker: MeterView = odometerPicker
@@ -274,42 +278,8 @@ class UpdateOdometerScreen : AppCompatActivity()
         }
     }
 
-    private fun loadOdometer(activity: Activity): Int
-    {
-        val odo = activity.getPreferences(Context.MODE_PRIVATE)
-            .getInt("odometer", -1)
-
-        if (odo >= 0)
-        {
-            return odo
-        }
-
-        Log.d(TAG, "Looking up odo from firebase")
-        //Load from firebase
-        //Temporarily disabled as async requests are difficult at best, may not be worth the implementation
-        /*databaseReference.child("odometer").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError)
-            {
-                // Ignore
-            }
-
-            override fun onDataChange(p0: DataSnapshot)
-            {
-
-            }
-        })*/
-
-        return 10000
-    }
-
     fun updateOdometer(activity: Activity)
     {
-        activity.getPreferences(Context.MODE_PRIVATE)
-            .edit()
-            .putInt("odometer", updatedOdometer)
-            .apply()
-
-        //Upload result to firebase asynchronously as well
-        databaseReference.setValue("odometer", updatedOdometer)
+        dataManager.setData("odometer", updatedOdometer, null)
     }
 }
