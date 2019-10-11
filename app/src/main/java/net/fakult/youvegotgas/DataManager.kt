@@ -171,10 +171,10 @@ class DataManager(val context: Context)
         val second = d.get(Calendar.SECOND)
         val ms = d.get(Calendar.MILLISECOND)
 
-        val timeValues = listOf(year, month, day, hour, minute, second + (ms/1000.0))
+        val timeValues = listOf(year, month, day, hour, minute, second + (ms / 1000.0))
     }
 
-    fun logEvent(description : String, location : String, lat : Double, lng : Double, distance : Int)
+    fun logEvent(description: String, location: String, lat: Double, lng: Double, distance: Int)
     {
         val keys = listOf("description", "location", "lat", "lng", "timestamp", "distance_traveled").toTypedArray()
         val values = listOf(description, location, lat, lng, System.currentTimeMillis(), distance).toTypedArray()

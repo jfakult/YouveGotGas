@@ -1,18 +1,17 @@
 package net.fakult.youvegotgas
 
 import android.app.TimePickerDialog
-import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.morning_alarm_view.view.*
 import org.json.JSONObject
-import org.w3c.dom.Text
-import java.time.Duration
 
 private const val BUTTON_ACTIVE = 27
 private const val BUTTON_INDEX = 28
@@ -110,14 +109,15 @@ class AlarmAdapter(private val alarmList: MutableList<AlarmObject>) : RecyclerVi
         notifyItemRemoved(position)
     }
 
-    private fun formatTime(hour : Int, minute: Int): String
+    private fun formatTime(hour: Int, minute: Int): String
     {
         return String.format("{0}:{1:D2}", hour, minute)
     }
 
-    private fun updateTag(view : View, TAG : Int, key : String, value : Any)
+    private fun updateTag(view: View, TAG: Int, key: String, value: Any)
     {
-        var tag = view.getTag(TAG).toString()
+        var tag = view.getTag(TAG)
+            .toString()
 
         if (tag == "")
         {
@@ -133,9 +133,10 @@ class AlarmAdapter(private val alarmList: MutableList<AlarmObject>) : RecyclerVi
         //}
     }
 
-    private fun getTag(view : View, TAG: Int, key : String) : Any?
+    private fun getTag(view: View, TAG: Int, key: String): Any?
     {
-        val tag = view.getTag(TAG).toString()
+        val tag = view.getTag(TAG)
+            .toString()
 
         if (tag == "")
         {

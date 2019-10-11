@@ -15,8 +15,6 @@ import com.android.volley.toolbox.Volley
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.ExecutionException
@@ -46,13 +44,12 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
 
         val geofenceManager = GeoFence()
         val geofencingClient = LocationServices.getGeofencingClient(context as Activity)
-        val auth = FirebaseAuth.getInstance()
-        val firebaseID = auth.uid!!
-        val databaseReference = FirebaseDatabase.getInstance()
-            .reference
+        //val auth = FirebaseAuth.getInstance()
+        //val firebaseID = auth.uid!!
+        //val databaseReference = FirebaseDatabase.getInstance().reference
         //val latLng = geofenceManager.getCurrentLocation(context)
 
-        val noteMan = NotificationManager(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID)
+        val noteMan = NotificationManager(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context))
 
         // Get the transition type.
         val geofenceTransition = geofencingEvent.geofenceTransition
@@ -136,7 +133,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
                     //Wait ~3 minutes to let them get far enough away from home
                     Handler().postDelayed({
                                               val latLng = geofenceManager.getCurrentLocation(context)
-                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, dataManager, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1], "")
+                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), dataManager, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1], "")
                                           }, 3 * 60 * 1000)
                 }
                 // Ignore DWELL
@@ -176,7 +173,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
 
                     Handler().postDelayed({
                                               val latLng = geofenceManager.getCurrentLocation(context)
-                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, dataManager, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1], "")
+                                              val success = geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), dataManager, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1], "")
                                           }, 3 * 60 * 1000)
 
                     //noteMan.showNotification(R.layout.notification_leaving_work, "temp", "exit_home", 1)
@@ -199,12 +196,12 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
                     // Disable and delete this geofence
                     // Set a timer for when the next MD geofence should start up (~1 minute to account for dwell time?)
 
-                    val success = geofenceManager.removeGeofence(geofencingClient, context, databaseReference, firebaseID, triggeringGeofences[0].requestId)
+                    val success = geofenceManager.removeGeofence(geofencingClient, dataManager, triggeringGeofences[0].requestId)
                     Log.d("Removed geofence", "Dwell success state: $success")
 
                     Handler().postDelayed({
                                               val latLng = geofenceManager.getCurrentLocation(context)
-                                              geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, dataManager, firebaseID, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1], "")
+                                              geofenceManager.createGeofence(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), dataManager, geofenceManager.GEOFENCE_TYPE_MOTION_DETECTOR, latLng[0], latLng[1], "")
                                           }, 30 * 1000) // 30 seconds
                 }
                 else if (type == "DWELL") //Dwell time ~= 3 minutes (long enough to never trigger at a light)
@@ -239,7 +236,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
     }
 
     // In Miles
-    private fun getDistance(context : Context, dataManager: DataManager, lat: Double, lng: Double): Int
+    private fun getDistance(context: Context, dataManager: DataManager, lat: Double, lng: Double): Int
     {
         val destLatLng = "$lat+$lng"
         val sourceLatLng = dataManager.getData("latLng", 0, listOf("source", destLatLng).toTypedArray()) as String
@@ -247,7 +244,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
         return sendDistanceRequest(context, sourceLatLng, destLatLng)
     }
 
-    private fun sendDistanceRequest(context : Context, sourceLatLng: String, destLatLng: String) : Int
+    private fun sendDistanceRequest(context: Context, sourceLatLng: String, destLatLng: String): Int
     {
         val srcLat = sourceLatLng.split("+")[0]
         val srcLng = sourceLatLng.split("+")[1]
@@ -260,7 +257,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
         val requestQueue = Volley.newRequestQueue(context)
         requestQueue.add(request)
 
-        var response : JSONObject? = null
+        var response: JSONObject? = null
         try
         {
             response = future.get() // this will block

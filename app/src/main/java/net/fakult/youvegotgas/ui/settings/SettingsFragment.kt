@@ -1,6 +1,5 @@
 package net.fakult.youvegotgas.ui.settings
 
-import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
@@ -15,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.common.config.GservicesValue.isInitialized
 import net.fakult.youvegotgas.*
 import java.util.*
 

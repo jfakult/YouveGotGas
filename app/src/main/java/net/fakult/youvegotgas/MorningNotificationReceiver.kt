@@ -6,7 +6,6 @@ import android.content.Intent
 import android.widget.Toast
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 
 const val CODE_ENTER_HOME = 1
 const val CODE_ENTER_WORK = 2
@@ -19,12 +18,11 @@ class MorningNotificationReceiver : BroadcastReceiver()
         val geofenceManager = GeoFence()
         val geofencingClient = LocationServices.getGeofencingClient(context!!)
         val auth = FirebaseAuth.getInstance()
-        val firebaseID = auth.uid!!
-        val databaseReference = FirebaseDatabase.getInstance()
-            .reference
+        //val firebaseID = auth.uid!!
+        //val databaseReference = FirebaseDatabase.getInstance().reference
         val dataManager = DataManager(context)
 
-        val noteMan = NotificationManager(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context), databaseReference, firebaseID)
+        val noteMan = NotificationManager(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context))
 
         Toast.makeText(context, "Called MorningNotService", Toast.LENGTH_SHORT)
             .show()

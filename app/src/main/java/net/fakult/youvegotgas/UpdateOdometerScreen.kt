@@ -1,9 +1,7 @@
 package net.fakult.youvegotgas
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -29,7 +27,7 @@ class UpdateOdometerScreen : AppCompatActivity()
     private var updatedOdometer: Int = -1
     private lateinit var databaseReference: DatabaseReference
     private lateinit var activity: Activity
-    private lateinit var dataManager : DataManager
+    private lateinit var dataManager: DataManager
 
     override fun onCreate(savedInstanceState: Bundle?)
     {

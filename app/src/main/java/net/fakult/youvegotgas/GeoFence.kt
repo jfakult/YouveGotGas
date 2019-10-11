@@ -13,9 +13,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
-import com.google.firebase.database.DatabaseReference
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import kotlin.math.abs
 
@@ -55,9 +53,9 @@ class GeoFence()
         return latLng.toTypedArray()
     }
 
-    fun createGeofence(activity: Activity, geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent, databaseReference: DatabaseReference, dataManager: DataManager, firebaseID: String, type: Int, lat: Double, lng: Double, name: String): Boolean
+    fun createGeofence(activity: Activity, geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent, dataManager: DataManager, type: Int, lat: Double, lng: Double, name: String): Boolean
     {
-        val geofenceJSON = loadGeofences(activity)
+        val geofenceJSON = loadGeofences(dataManager)
 
         for (i in 0 until geofenceJSON.length())
         {
@@ -90,7 +88,7 @@ class GeoFence()
                     Toast.makeText(geofencingClient.applicationContext, "Successfully made geofence!", Toast.LENGTH_LONG)
                         .show()
 
-                    updateGeofences(activity, geofenceJSON, databaseReference, dataManager, firebaseID, type, lat, lng, name)
+                    updateGeofences(geofenceJSON, dataManager, type, lat, lng, name)
                 }
                 addOnFailureListener {
                     Log.d("error", it.message!!)
@@ -102,7 +100,7 @@ class GeoFence()
         return true
     }
 
-    fun removeAllGeofences(geofencingClient: GeofencingClient, pendingIntent: PendingIntent, activity: Activity, databaseReference: DatabaseReference, firebaseID: String)
+    fun removeAllGeofences(geofencingClient: GeofencingClient, pendingIntent: PendingIntent, activity: Activity, dataManager: DataManager)
     {
         geofencingClient.removeGeofences(pendingIntent)
             ?.run {
@@ -116,10 +114,10 @@ class GeoFence()
                 }
             }
 
-        deleteGeofenceData(activity, databaseReference, firebaseID, "*")
+        deleteGeofenceData(dataManager, "*")
     }
 
-    fun removeGeofence(geofencingClient: GeofencingClient, activity: Activity, databaseReference: DatabaseReference, firebaseID: String, geofenceID: String)
+    fun removeGeofence(geofencingClient: GeofencingClient, dataManager: DataManager, geofenceID: String)
     {
         geofencingClient.removeGeofences(listOf(geofenceID))
             ?.run {
@@ -133,7 +131,7 @@ class GeoFence()
                 }
             }
 
-        deleteGeofenceData(activity, databaseReference, firebaseID, geofenceID)
+        deleteGeofenceData(dataManager, geofenceID)
     }
 
     private fun buildGeofence(latitude: Double, longitude: Double, radius: Double, type: Int): Geofence?
@@ -190,7 +188,7 @@ class GeoFence()
         return (abs(lat1 - lat2) < 0.01) && (abs(lng1 - lng2) < 0.01)
     }
 
-    private fun updateGeofences(activity: Activity, geofenceJSON: JSONArray, databaseReference: DatabaseReference, dataManager: DataManager, firebaseID: String, type: Int, lat: Double, lng: Double, name: String)
+    private fun updateGeofences(geofenceJSON: JSONArray, dataManager: DataManager, type: Int, lat: Double, lng: Double, name: String)
     {
         val newGeofence = JSONObject("{\"type\": $type, \"lat\": $lat, \"lng\": $lng}")
         geofenceJSON.put(newGeofence)
@@ -217,27 +215,16 @@ class GeoFence()
         return geofencePendingIntent
     }
 
-    private fun loadGeofences(activity: Activity): JSONArray
+    private fun loadGeofences(dataManager: DataManager): JSONArray
     {
-        val registeredGeofences = activity.getPreferences(Context.MODE_PRIVATE)
-            .getString("registeredGeofences", "")
+        val registeredGeofences = dataManager.getData("geofences", "[]", null)
 
-        var geofenceJSON = JSONArray("[]")
-        try
-        {
-            geofenceJSON = JSONArray(registeredGeofences)
-        }
-        catch (e: JSONException)
-        {
-            // Do nothing
-        }
-
-        return geofenceJSON
+        return JSONArray(registeredGeofences)
     }
 
-    private fun deleteGeofenceData(activity: Activity, databaseReference: DatabaseReference, firebaseID: String, id: String)
+    private fun deleteGeofenceData(dataManager: DataManager, id: String)
     {
-        val geofencesJSON = loadGeofences(activity)
+        val geofencesJSON = loadGeofences(dataManager)
 
         var i = 0
         while (i < geofencesJSON.length())
@@ -254,15 +241,6 @@ class GeoFence()
             i++
         }
 
-        activity.getPreferences(Context.MODE_PRIVATE)
-            .edit()
-            .putString("registeredGeofences", geofencesJSON.toString())
-            .apply()
-
-        //Upload result to firebase asynchronously as well
-        databaseReference.child("users")
-            .child(firebaseID)
-            .child("registeredGeofences")
-            .setValue(geofencesJSON.toString())
+        dataManager.setData("geofences", geofencesJSON.toString(), null)
     }
 }

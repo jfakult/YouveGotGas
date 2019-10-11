@@ -9,10 +9,9 @@ import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.GeofencingClient
-import com.google.firebase.database.DatabaseReference
 import net.fakult.youvegotgas.ui.geofence_dashboard.GeofenceDashboardFragment
 
-class NotificationManager(val context: Context, val geofencingClient: GeofencingClient?, val geofencePendingIntent: PendingIntent?, val databaseReference: DatabaseReference?, val firebaseID: String?)
+class NotificationManager(val context: Context, val geofencingClient: GeofencingClient?, val geofencePendingIntent: PendingIntent?)
 {
     fun showNotification(layoutID: Int, dataManager: DataManager, distance: Int?, channelID: String, notificationID: Int)
     {
