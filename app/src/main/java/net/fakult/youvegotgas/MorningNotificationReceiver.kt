@@ -17,12 +17,9 @@ class MorningNotificationReceiver : BroadcastReceiver()
     {
         val geofenceManager = GeoFence()
         val geofencingClient = LocationServices.getGeofencingClient(context!!)
-        val auth = FirebaseAuth.getInstance()
-        //val firebaseID = auth.uid!!
-        //val databaseReference = FirebaseDatabase.getInstance().reference
         val dataManager = DataManager(context)
 
-        val noteMan = NotificationManager(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context))
+        val noteMan = NotificationManager(context)
 
         Toast.makeText(context, "Called MorningNotService", Toast.LENGTH_SHORT)
             .show()

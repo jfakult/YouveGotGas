@@ -1,6 +1,8 @@
 package net.fakult.youvegotgas
 
 import android.app.Activity
+import android.app.PendingIntent
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -15,9 +17,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import com.alexzaitsev.meternumberpicker.MeterView
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_update_odometer_screen.*
+import org.json.JSONObject
 import kotlin.math.pow
 
 const val TAG: String = "UpdateOdoScreen"
@@ -28,6 +33,10 @@ class UpdateOdometerScreen : AppCompatActivity()
     private lateinit var databaseReference: DatabaseReference
     private lateinit var activity: Activity
     private lateinit var dataManager: DataManager
+    private lateinit var geofencingClient: GeofencingClient
+    private lateinit var geofencePendingIntent: PendingIntent
+
+    private var submitAction: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -36,7 +45,8 @@ class UpdateOdometerScreen : AppCompatActivity()
 
         activity = this
 
-        val action = savedInstanceState?.get("action")
+        submitAction = savedInstanceState?.getInt("submitAction", -1)
+
         val dataManager = DataManager(this)
 
         val currentOdometer = dataManager.getData("odometer", -1, null) as Int // Get from either shared prefs or firebase (prob load all from firebase on start, update sharedprefs immediately to have local copy)
@@ -250,7 +260,7 @@ class UpdateOdometerScreen : AppCompatActivity()
                     //Thread.sleep(500)
                     updatedOdometer = odometerPicker.value
 
-                    updateOdometer(activity)
+                    updateOdometer()
                 }
                 else
                 {
@@ -276,8 +286,19 @@ class UpdateOdometerScreen : AppCompatActivity()
         }
     }
 
-    fun updateOdometer(activity: Activity)
+    fun updateOdometer()
     {
         dataManager.setData("odometer", updatedOdometer, null)
+
+        val geofencingClient = LocationServices.getGeofencingClient(this)
+        val geofenceManager = GeoFence()
+        //geofenceManager.getGeofencePendingIntent(context)
+
+        if (submitAction == ACTION_START_HOME)
+        {
+            geofenceManager.startHomeGeofence(this, geofenceManager, )
+            Toast.makeText(this, "Updated Successfully", Toast.LENGTH_LONG).show()
+            finish()
+        }
     }
 }

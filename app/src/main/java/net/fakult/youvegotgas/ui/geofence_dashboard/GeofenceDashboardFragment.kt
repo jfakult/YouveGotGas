@@ -46,10 +46,11 @@ class GeofenceDashboardFragment : Fragment()
         setHomeGeofenceButton.setOnClickListener {
             val latLng: Array<Double> = geofenceManager.getCurrentLocation(context!!)
 
-            //DELET THIS :(
+            //DELET THIS??? :(
             geofenceManager.removeGeofence(geofencingClient, dataManager, geofenceManager.GEOFENCE_TYPE_HOME.toString() + "+" + latLng[0] + "+" + latLng[1])
 
             val success = geofenceManager.createGeofence(activity as Activity, geofencingClient, geofenceManager.getGeofencePendingIntent(context!!), dataManager, geofenceManager.GEOFENCE_TYPE_HOME, latLng[0], latLng[1], "home")
+            //geofenceManager.startHomeGeofence(activity as Activity, geofencingClient, geofenceManager.getGeofencePendingIntent(context!!), dataManager, geofenceManager.GEOFENCE_TYPE_HOME, latLng[0], latLng[1], "home")
         }
 
         addWorkGeofenceButton.setOnClickListener {

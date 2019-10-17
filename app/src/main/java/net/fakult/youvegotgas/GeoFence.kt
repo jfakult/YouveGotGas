@@ -190,16 +190,16 @@ class GeoFence()
 
     private fun updateGeofences(geofenceJSON: JSONArray, dataManager: DataManager, type: Int, lat: Double, lng: Double, name: String)
     {
-        val newGeofence = JSONObject("{\"type\": $type, \"lat\": $lat, \"lng\": $lng}")
+        val newGeofence = JSONObject("{\"type\": $type, \"lat\": $lat, \"lng\": $lng, \"name\": $name, \"status\": 1}")
         geofenceJSON.put(newGeofence)
 
         if (type == GEOFENCE_TYPE_HOME)
         {
-            dataManager.setData("latLng", "$lat+$lng", listOf("geofences", "home").toTypedArray())
+            dataManager.setData("home", geofenceJSON, listOf("geofences").toTypedArray())
         }
         else if (type == GEOFENCE_TYPE_WORK)
         {
-            dataManager.setData("name", "name", listOf("geofences", "work", "$lat+$lng").toTypedArray())
+            dataManager.setData("$type+$lat+$lng", geofenceJSON, listOf("geofences", "work").toTypedArray())
         }
     }
 
@@ -242,5 +242,28 @@ class GeoFence()
         }
 
         dataManager.setData("geofences", geofencesJSON.toString(), null)
+    }
+
+    fun startHomeGeofence(activity: Activity, geofencingClient: GeofencingClient, geofencePendingIntent: PendingIntent, dataManager: DataManager)
+    {
+        val home = dataManager.getData("home", "{}", listOf("geofences").toTypedArray()) as String
+
+        if (home == "{}")
+        {
+            Log.d("HomeStart", "This shouldn't happen. This should only be called after a home geofence is made")
+        }
+
+        val homeGeofence = JSONObject(home)
+
+        if (!homeGeofence.has("active") || !homeGeofence.getBoolean("active"))
+        {
+            val id = homeGeofence.getString("id")
+            val parts = id.split("+")
+            val type = parts[0].toInt()
+            val lat = parts[1].toDouble()
+            val lng = parts[1].toDouble()
+
+            createGeofence(activity,geofencingClient, geofencePendingIntent, dataManager, type, lat, lng, "home")
+        }
     }
 }

@@ -49,7 +49,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver()
         //val databaseReference = FirebaseDatabase.getInstance().reference
         //val latLng = geofenceManager.getCurrentLocation(context)
 
-        val noteMan = NotificationManager(context, geofencingClient, geofenceManager.getGeofencePendingIntent(context))
+        val noteMan = NotificationManager(context)
 
         // Get the transition type.
         val geofenceTransition = geofencingEvent.geofenceTransition

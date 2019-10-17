@@ -17,10 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import net.fakult.youvegotgas.*
 import java.util.*
 
-const val CODE_ENTER_HOME = 1
-const val CODE_ENTER_WORK = 2
-const val CODE_DWELL = 3
-
 class SettingsFragment : Fragment()
 {
     private lateinit var viewAdapter: AlarmAdapter
@@ -37,25 +33,15 @@ class SettingsFragment : Fragment()
         This is temporary, just for testing for now. To be implemented by buttons on this page later
          */
 
-        val intent = Intent(context, MorningNotificationReceiver::class.java)
-        //intent.putExtra("notificationId", CODE_ENTER_HOME)
-        val alarmManager = context!!.getSystemService(ALARM_SERVICE) as AlarmManager
-        val pendingIntent = PendingIntent.getBroadcast(context, CODE_ENTER_HOME, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        // Issue with getservice above?
-
-        val calendar = Calendar.getInstance()
-
-        calendar.add(Calendar.SECOND, 4)
-
-        //alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
         addStartButton.setOnClickListener {
             TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
                 val daysActive = booleanArrayOf(true, true, true, true, true, false, false).toTypedArray()
-                val alarm = AlarmObject("Name", hourOfDay, minute, daysActive, System.currentTimeMillis())
+                val alarmTimeStamp = (System.currentTimeMillis() / 1000).toInt()
+                val alarm = AlarmObject("Name", hourOfDay, minute, daysActive, alarmTimeStamp)
 
                 if (!adapterInitialized)
                 {
-                    viewAdapter = AlarmAdapter(mutableListOf(alarm))
+                    viewAdapter = AlarmAdapter(mutableListOf(alarm), context!!)
                     morningAlarmRecycler.apply {
                         adapter = viewAdapter
                     }

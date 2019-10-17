@@ -11,10 +11,16 @@ import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.GeofencingClient
 import net.fakult.youvegotgas.ui.geofence_dashboard.GeofenceDashboardFragment
 
-class NotificationManager(val context: Context, val geofencingClient: GeofencingClient?, val geofencePendingIntent: PendingIntent?)
+const val ACTION_START_HOME = 1
+const val ACTION_START_MOTION_DETECTOR = 2
+
+class NotificationManager(val context: Context)
 {
     fun showNotification(layoutID: Int, dataManager: DataManager, distance: Int?, channelID: String, notificationID: Int)
     {
+        val home = dataManager.getData("home", "", listOf("geofences").toTypedArray())
+        if (home == "") return  // No point in doing anything until a home is set
+
         val notificationLayout = RemoteViews("net.fakult.youvegotgas", layoutID)
 
         val customNotification = NotificationCompat.Builder(context, channelID)
@@ -38,7 +44,8 @@ class NotificationManager(val context: Context, val geofencingClient: Geofencing
             val intent = Intent(context, UpdateOdometerScreen::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
-            intent.putExtra("action", "temp")
+
+            intent.putExtra("submitAction", ACTION_START_HOME)
             val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
 
             customNotification.setContentIntent(pendingIntent)
